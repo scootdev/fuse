@@ -92,6 +92,8 @@ const readResponseHeaderStart = unsafe.Offsetof(ReadResponse{}.outHeader)
 const readResponseSize = unsafe.Sizeof(ReadResponse{})
 
 func readResponse(a *Allocator, dataSize uint32) *ReadResponse {
+	// Note, bytes are not zeroed by the allocator since we only want to zero the base struct.
+	// The remaining data bytes do not need to be zeroed, they're immediately overwritten by the caller.
 	bytes := a.alloc(readResponseBaseSize+uintptr(dataSize), false)
 	for ii := 0; ii < int(readResponseBaseSize); ii++ {
 		bytes[ii] = 0

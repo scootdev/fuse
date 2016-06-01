@@ -12,6 +12,7 @@ import (
 )
 
 // A Conn represents a connection to a mounted FUSE file system.
+// This is threadsafe since there's no bookkeeping and file ops are atomic.
 type Conn struct {
 	// Ready is closed when the mount is complete or has failed.
 	Ready <-chan struct{}
@@ -25,9 +26,6 @@ type Conn struct {
 
 	// Protocol version negotiated with InitRequest/InitResponse.
 	proto Protocol
-
-	// Pointer to the config used to setup Conn.
-	conf *mountConfig
 }
 
 // Caller may pass this to Conn.Read() to have us take care of handling and responding.
@@ -80,7 +78,6 @@ func Mount(dir string, mem *Allocator, options ...MountOption) (*Conn, error) {
 	ready := make(chan struct{}, 1)
 	c := &Conn{
 		Ready: ready,
-		conf:  &conf,
 	}
 	f, err := mount(dir, &conf, ready, &c.MountError)
 	if err != nil {

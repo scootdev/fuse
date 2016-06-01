@@ -26,6 +26,10 @@ func MakeAlloc() *Allocator {
 	return &Allocator{buf: make([]byte, memSize)}
 }
 
+// Note, the allocator funcs take a zeroed flag as an optimization.
+// Set zeroed to true if relying on struct/array default values when casting from bytes.
+// Set to false if bytes are immediately overwritten by the caller making zeroing superfluous.
+
 func (a *Allocator) newRequest(c *Conn, zeroed bool) *RequestScope {
 
 	a.reset(zeroed)
